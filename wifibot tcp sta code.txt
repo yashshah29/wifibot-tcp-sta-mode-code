@@ -1,0 +1,104 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+
+// Hardcode WiFi parameters as this isn't going to be moving around.
+const char* ssid = "<>";
+const char* password = "<>";
+int leftMotorBackward = D1;                 /* (D1) -> IN1  */
+int leftMotorForward = D2;                  /* (D2) ->IN2   */
+int rightMotorForward = D3;                 /* (D3) -> IN3   */
+int rightMotorBackward = D4;                /* (D4) -> IN4  */
+
+
+
+WiFiServer server(80);
+
+void setup()
+ {
+   pinMode(leftMotorBackward, OUTPUT); 
+   pinMode(leftMotorForward, OUTPUT); 
+   pinMode(rightMotorForward, OUTPUT); 
+   pinMode(rightMotorBackward, OUTPUT);
+  WiFi.begin(ssid,password);
+  Serial.println("");
+  while(WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+ 
+  // Start the TCP server
+  server.begin();
+}
+
+void loop() 
+{
+  WiFiClient client = server.available();
+  if (client)
+ {
+    if (client.connected()) 
+    {
+      Serial.println("Connected to client");   
+    }
+    if (client.available() > 0)
+      {
+                                             // Read incoming message
+      String input = client.readString();
+     
+      switch(input)
+        {
+          case "FORWARD":
+          forward();
+          case "BACKWARD":
+          backwards();
+          case "LEFT":
+          left();
+          case "RIGHT":
+          right();
+          case "OFF":
+          client.stop()
+         }
+
+}
+/*************** FORWARD *******************/
+void forward(void)   
+{
+  digitalWrite(leftMotorForward,HIGH);
+  digitalWrite(rightMotorForward,HIGH);
+  digitalWrite(leftMotorBackward,LOW);
+  digitalWrite(rightMotorBackward,LOW);
+}
+
+/*************** BACKWARD *******************/
+void backward()   
+{
+  digitalWrite(leftMotorBackward,HIGH);
+  digitalWrite(rightMotorBackward,HIGH);
+  digitalWrite(leftMotorForward,LOW);
+  digitalWrite(rightMotorForward,LOW);
+}
+
+/*************** TURN LEFT *******************/
+void left()   
+{
+  digitalWrite(rightMotorForward,HIGH);
+  digitalWrite(leftMotorBackward,LOW);
+  digitalWrite(rightMotorBackward,LOW);
+  digitalWrite(leftMotorForward,LOW);
+}
+
+
+
+/*************** TURN RIGHT *******************/
+void right()   
+{
+  digitalWrite(leftMotorForward,HIGH);
+  digitalWrite(leftMotorBackward,LOW);
+  digitalWrite(rightMotorForward,LOW);
+  digitalWrite(rightMotorBackward,LOW);
+}
+
+
+    
+      
+  
